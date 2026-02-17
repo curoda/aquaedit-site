@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AquaEdit Lab</title>
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #121829;
+    --border: #1e2a45;
+    --accent: #00b4d8;
+    --accent-hover: #0096c7;
+    --text: #e0e6f0;
+    --text-dim: #7a8baa;
+    --danger: #e63946;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* Password gate */
+  #gate {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    flex-direction: column;
+    gap: 16px;
+  }
+  #gate h1 { font-size: 18px; color: var(--text-dim); }
+  #gate input {
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--text);
+    font-size: 16px;
+    width: 280px;
+    text-align: center;
+  }
+  #gate input:focus { outline: none; border-color: var(--accent); }
+  #gate .error { color: var(--danger); font-size: 14px; display: none; }
+
+  /* Main app */
+  #app { display: none; padding: 24px; max-width: 1200px; margin: 0 auto; }
+  #app.active { display: block; }
+
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  header h1 { font-size: 20px; font-weight: 600; }
+  header h1 span { color: var(--accent); }
+  .api-key-area {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .api-key-area input {
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--surface);
+    color: var(--text);
+    font-size: 13px;
+    width: 260px;
+  }
+
+  .workspace {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .panel h2 {
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-dim);
+    margin-bottom: 16px;
+  }
+
+  /* Upload area */
+  .upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: 8px;
+    padding: 40px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    margin-bottom: 16px;
+  }
+  .upload-zone:hover, .upload-zone.dragover { border-color: var(--accent); }
+  .upload-zone.has-image { padding: 0; border-style: solid; }
+  .upload-zone img {
+    max-width: 100%;
+    max-height: 400px;
+    border-radius: 6px;
+    display: block;
+    margin: 0 auto;
+  }
+  .upload-zone .placeholder { color: var(--text-dim); font-size: 14px; }
+
+  /* Prompt area */
+  textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.5;
+    resize: vertical;
+    font-family: inherit;
+  }
+  textarea:focus { outline: none; border-color: var(--accent); }
+
+  .prompt-presets {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  .preset-btn {
+    padding: 4px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text-dim);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .preset-btn:hover { border-color: var(--accent); color: var(--text); }
+
+  .actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+    align-items: center;
+  }
+  .btn-primary {
+    padding: 10px 24px;
+    border: none;
+    border-radius: 8px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+  .status { font-size: 13px; color: var(--text-dim); }
+
+  /* Result area */
+  .result-zone {
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    background: var(--bg);
+  }
+  .result-zone img {
+    max-width: 100%;
+    max-height: 500px;
+    display: block;
+  }
+  .result-zone .empty { color: var(--text-dim); font-size: 14px; }
+
+  /* Comparison slider */
+  .comparison {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    cursor: col-resize;
+    user-select: none;
+  }
+  .comparison img {
+    display: block;
+    width: 100%;
+    max-height: 500px;
+    object-fit: contain;
+  }
+  .comparison .after-wrap {
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    width: 50%;
+    overflow: hidden;
+  }
+  .comparison .after-wrap img {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  .comparison .slider-line {
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 3px;
+    background: var(--accent);
+    left: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+    z-index: 2;
+  }
+  .comparison .slider-handle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 3px solid #fff;
+    z-index: 3;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: #fff;
+  }
+  .comparison .label {
+    position: absolute;
+    bottom: 8px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: rgba(0,0,0,0.6);
+    color: #fff;
+    font-size: 11px;
+    z-index: 2;
+  }
+  .comparison .label.before { left: 8px; }
+  .comparison .label.after { right: 8px; }
+
+  /* History */
+  .history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 300px;
+    overflow-y: auto;
+    margin-top: 12px;
+  }
+  .history-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    font-size: 13px;
+  }
+  .history-item:hover { border-color: var(--accent); }
+  .history-item img { width: 48px; height: 48px; object-fit: cover; border-radius: 4px; }
+  .history-item .meta { flex: 1; min-width: 0; }
+  .history-item .prompt-preview {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text-dim);
+    font-size: 12px;
+  }
+  .history-item .time { color: var(--text-dim); font-size: 11px; }
+
+  .spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 800px) {
+    .workspace { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Password Gate -->
+<div id="gate">
+  <h1>AquaEdit Lab</h1>
+  <input type="password" id="passInput" placeholder="Password" autofocus>
+  <div class="error" id="passError">Wrong password</div>
+</div>
+
+<!-- Main App -->
+<div id="app">
+  <header>
+    <h1>AquaEdit <span>Lab</span></h1>
+    <div class="api-key-area">
+      <input type="password" id="apiKeyInput" placeholder="Gemini API key">
+    </div>
+  </header>
+
+  <div class="workspace">
+    <!-- Left: Input -->
+    <div class="panel">
+      <h2>Input</h2>
+      <div class="upload-zone" id="uploadZone">
+        <div class="placeholder">Drop an image or click to upload</div>
+      </div>
+      <input type="file" id="fileInput" accept="image/*" style="display:none">
+
+      <h2 style="margin-top:16px">Prompt</h2>
+      <div class="prompt-presets">
+        <button class="preset-btn" data-preset="production">Production</button>
+        <button class="preset-btn" data-preset="natural">Natural Colors</button>
+        <button class="preset-btn" data-preset="vivid">Vivid</button>
+        <button class="preset-btn" data-preset="minimal">Minimal Touch</button>
+      </div>
+      <textarea id="promptInput"></textarea>
+
+      <div class="actions">
+        <button class="btn-primary" id="enhanceBtn" disabled>Enhance</button>
+        <span class="status" id="statusText"></span>
+      </div>
+
+      <h2 style="margin-top:24px">History</h2>
+      <div class="history-list" id="historyList">
+        <div style="color:var(--text-dim);font-size:13px;">No runs yet</div>
+      </div>
+    </div>
+
+    <!-- Right: Result -->
+    <div class="panel">
+      <h2>Result</h2>
+      <div class="result-zone" id="resultZone">
+        <div class="empty">Results will appear here</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// --- Config ---
+const PASSWORD_HASH = 'a9c359e6be14d8a135a3f3260c8d4a250c3587aad617e28a0b222d894131880c';
+const GEMINI_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image-preview:generateContent';
+
+const PRESETS = {
+  production: `Enhance this underwater photograph. Correct the blue/green color cast, restore natural colors, improve white balance, increase clarity and sharpness, reduce backscatter, and optimize exposure. DO NOT alter the composition, framing, subject position, or add/remove any objects. The enhanced image must be pixel-aligned with the original — same crop, same perspective, same scene. Only adjust color, lighting, contrast, and clarity.`,
+  natural: `Enhance this underwater photograph with a focus on natural color restoration. Gently correct the blue/green color cast to reveal the scene's true colors as they would appear at the surface. Preserve the natural underwater atmosphere — don't over-saturate. Improve white balance and reduce backscatter. DO NOT alter composition, framing, or subject position.`,
+  vivid: `Enhance this underwater photograph for maximum visual impact. Aggressively correct color cast, boost saturation and vibrancy, enhance contrast and clarity, sharpen details, and reduce all backscatter and haze. Make colors pop while keeping the image realistic. DO NOT alter composition, framing, or subject position.`,
+  minimal: `Lightly enhance this underwater photograph. Apply subtle white balance correction, mild backscatter reduction, and a small clarity boost. Keep the edit minimal and natural-looking. DO NOT alter composition, framing, or subject position.`
+};
+
+// --- State ---
+let originalBase64 = null;
+let originalMime = null;
+let originalDataUrl = null;
+let history = JSON.parse(localStorage.getItem('aqlab_history') || '[]');
+
+// --- Auth ---
+const gate = document.getElementById('gate');
+const passInput = document.getElementById('passInput');
+const passError = document.getElementById('passError');
+const app = document.getElementById('app');
+
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function checkPassword(pw) {
+  const hash = await sha256(pw);
+  if (hash === PASSWORD_HASH) {
+    sessionStorage.setItem('aqlab_auth', '1');
+    gate.style.display = 'none';
+    app.classList.add('active');
+    loadApp();
+  } else {
+    passError.style.display = 'block';
+    passInput.value = '';
+    passInput.focus();
+  }
+}
+
+passInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') checkPassword(passInput.value);
+  passError.style.display = 'none';
+});
+
+// Auto-login if already authed this session
+if (sessionStorage.getItem('aqlab_auth')) {
+  gate.style.display = 'none';
+  app.classList.add('active');
+  setTimeout(loadApp, 0);
+}
+
+// --- App ---
+function loadApp() {
+  const apiKeyInput = document.getElementById('apiKeyInput');
+  const promptInput = document.getElementById('promptInput');
+  const uploadZone = document.getElementById('uploadZone');
+  const fileInput = document.getElementById('fileInput');
+  const enhanceBtn = document.getElementById('enhanceBtn');
+  const statusText = document.getElementById('statusText');
+  const resultZone = document.getElementById('resultZone');
+  const historyList = document.getElementById('historyList');
+
+  // Restore saved values
+  apiKeyInput.value = localStorage.getItem('aqlab_apikey') || '';
+  promptInput.value = localStorage.getItem('aqlab_prompt') || PRESETS.production;
+
+  apiKeyInput.addEventListener('input', () => {
+    localStorage.setItem('aqlab_apikey', apiKeyInput.value);
+  });
+  promptInput.addEventListener('input', () => {
+    localStorage.setItem('aqlab_prompt', promptInput.value);
+  });
+
+  // Presets
+  document.querySelectorAll('.preset-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const key = btn.dataset.preset;
+      promptInput.value = PRESETS[key] || '';
+      localStorage.setItem('aqlab_prompt', promptInput.value);
+    });
+  });
+
+  // Upload
+  uploadZone.addEventListener('click', () => fileInput.click());
+  uploadZone.addEventListener('dragover', (e) => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+  uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+  uploadZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadZone.classList.remove('dragover');
+    if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+  });
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files.length) handleFile(fileInput.files[0]);
+  });
+
+  function handleFile(file) {
+    if (!file.type.startsWith('image/')) return;
+    originalMime = file.type;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      originalDataUrl = e.target.result;
+      originalBase64 = originalDataUrl.split(',')[1];
+      uploadZone.innerHTML = `<img src="${originalDataUrl}">`;
+      uploadZone.classList.add('has-image');
+      enhanceBtn.disabled = false;
+      // Clear previous result
+      resultZone.innerHTML = '<div class="empty">Results will appear here</div>';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function updateEnhanceState() {
+    enhanceBtn.disabled = !originalBase64 || !apiKeyInput.value.trim();
+  }
+  apiKeyInput.addEventListener('input', updateEnhanceState);
+
+  // Enhance
+  enhanceBtn.addEventListener('click', async () => {
+    const apiKey = apiKeyInput.value.trim();
+    const prompt = promptInput.value.trim();
+    if (!originalBase64 || !apiKey || !prompt) return;
+
+    enhanceBtn.disabled = true;
+    statusText.innerHTML = '<span class="spinner"></span> Enhancing...';
+
+    const startTime = Date.now();
+
+    try {
+      const res = await fetch(`${GEMINI_ENDPOINT}?key=${apiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{
+            parts: [
+              { text: prompt },
+              { inlineData: { mimeType: originalMime || 'image/jpeg', data: originalBase64 } }
+            ]
+          }],
+          generationConfig: { responseModalities: ['TEXT', 'IMAGE'] }
+        })
+      });
+
+      if (!res.ok) {
+        const err = await res.text();
+        throw new Error(`API ${res.status}: ${err.substring(0, 200)}`);
+      }
+
+      const data = await res.json();
+      const parts = data.candidates?.[0]?.content?.parts;
+      const imgPart = parts?.find(p => p.inlineData?.mimeType?.startsWith('image/'));
+
+      if (!imgPart) throw new Error('No image returned. May have been filtered by safety.');
+
+      const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+      const enhancedDataUrl = `data:${imgPart.inlineData.mimeType};base64,${imgPart.inlineData.data}`;
+
+      statusText.textContent = `Done in ${elapsed}s`;
+
+      // Show comparison slider
+      showComparison(originalDataUrl, enhancedDataUrl);
+
+      // Save to history
+      const entry = {
+        id: Date.now(),
+        prompt: prompt.substring(0, 200),
+        time: new Date().toLocaleTimeString(),
+        elapsed,
+        thumbBefore: originalDataUrl,
+        thumbAfter: enhancedDataUrl
+      };
+      history.unshift(entry);
+      if (history.length > 20) history.pop();
+      // Don't store full images in localStorage (too big), just metadata
+      const histMeta = history.map(h => ({ id: h.id, prompt: h.prompt, time: h.time, elapsed: h.elapsed }));
+      localStorage.setItem('aqlab_history', JSON.stringify(histMeta));
+      renderHistory();
+
+    } catch (err) {
+      statusText.textContent = `Error: ${err.message}`;
+    } finally {
+      enhanceBtn.disabled = false;
+    }
+  });
+
+  function showComparison(beforeUrl, afterUrl) {
+    resultZone.innerHTML = `
+      <div class="comparison" id="compSlider">
+        <img src="${beforeUrl}" class="before-img">
+        <div class="after-wrap"><img src="${afterUrl}"></div>
+        <div class="slider-line"></div>
+        <div class="slider-handle">&#x2194;</div>
+        <span class="label before">Before</span>
+        <span class="label after">After</span>
+      </div>
+    `;
+
+    const comp = document.getElementById('compSlider');
+    const afterWrap = comp.querySelector('.after-wrap');
+    const line = comp.querySelector('.slider-line');
+    const handle = comp.querySelector('.slider-handle');
+    let dragging = false;
+
+    function setPosition(x) {
+      const rect = comp.getBoundingClientRect();
+      let pct = ((x - rect.left) / rect.width) * 100;
+      pct = Math.max(0, Math.min(100, pct));
+      afterWrap.style.width = pct + '%';
+      line.style.left = pct + '%';
+      handle.style.left = pct + '%';
+    }
+
+    comp.addEventListener('mousedown', (e) => { dragging = true; setPosition(e.clientX); });
+    window.addEventListener('mousemove', (e) => { if (dragging) setPosition(e.clientX); });
+    window.addEventListener('mouseup', () => { dragging = false; });
+    comp.addEventListener('touchstart', (e) => { dragging = true; setPosition(e.touches[0].clientX); });
+    window.addEventListener('touchmove', (e) => { if (dragging) setPosition(e.touches[0].clientX); });
+    window.addEventListener('touchend', () => { dragging = false; });
+  }
+
+  function renderHistory() {
+    if (!history.length) {
+      historyList.innerHTML = '<div style="color:var(--text-dim);font-size:13px;">No runs yet</div>';
+      return;
+    }
+    historyList.innerHTML = history.map(h => `
+      <div class="history-item">
+        <div class="meta">
+          <div class="prompt-preview">${escHtml(h.prompt)}</div>
+          <div class="time">${h.time} &middot; ${h.elapsed}s</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  renderHistory();
+  updateEnhanceState();
+}
+</script>
+</body>
+</html>
