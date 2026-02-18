@@ -234,7 +234,8 @@
     position: absolute; top: 0; left: 0; bottom: 0; width: 50%; overflow: hidden;
   }
   .comparison .after-wrap img {
-    position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain;
+    position: absolute; top: 0; left: 0;
+    object-fit: contain;
   }
   .comparison .slider-line {
     position: absolute; top: 0; bottom: 0; width: 3px;
@@ -597,10 +598,23 @@ function loadApp() {
     modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); });
 
     const comp = document.getElementById('compSlider');
+    const beforeImg = comp.querySelector(':scope > img');
     const afterWrap = comp.querySelector('.after-wrap');
+    const afterImg = afterWrap.querySelector('img');
     const line = comp.querySelector('.slider-line');
     const handle = comp.querySelector('.slider-handle');
     let dragging = false;
+
+    // Sync after image size to before image rendered size
+    function syncAfterSize() {
+      const w = beforeImg.offsetWidth;
+      const h = beforeImg.offsetHeight;
+      afterImg.style.width = w + 'px';
+      afterImg.style.height = h + 'px';
+      afterWrap.style.height = h + 'px';
+    }
+    beforeImg.addEventListener('load', syncAfterSize);
+    if (beforeImg.complete) syncAfterSize();
 
     function setPos(x) {
       const rect = comp.getBoundingClientRect();
