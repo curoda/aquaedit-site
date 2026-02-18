@@ -14,6 +14,10 @@
     --text: #e0e6f0;
     --text-dim: #7a8baa;
     --danger: #e63946;
+    --gold: #f5c542;
+    --silver: #c0c0c0;
+    --bronze: #cd7f32;
+    --success: #2ecc71;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -25,275 +29,236 @@
 
   /* Password gate */
   #gate {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    flex-direction: column;
-    gap: 16px;
+    display: flex; align-items: center; justify-content: center;
+    min-height: 100vh; flex-direction: column; gap: 16px;
   }
   #gate h1 { font-size: 18px; color: var(--text-dim); }
   #gate input {
-    padding: 12px 16px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    background: var(--surface);
-    color: var(--text);
-    font-size: 16px;
-    width: 280px;
-    text-align: center;
+    padding: 12px 16px; border: 1px solid var(--border); border-radius: 8px;
+    background: var(--surface); color: var(--text); font-size: 16px;
+    width: 280px; text-align: center;
   }
   #gate input:focus { outline: none; border-color: var(--accent); }
   #gate .error { color: var(--danger); font-size: 14px; display: none; }
 
   /* Main app */
-  #app { display: none; padding: 24px; max-width: 1200px; margin: 0 auto; }
+  #app { display: none; padding: 24px; max-width: 1400px; margin: 0 auto; }
   #app.active { display: block; }
 
   header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 24px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border);
   }
   header h1 { font-size: 20px; font-weight: 600; }
   header h1 span { color: var(--accent); }
-  .api-key-area { display: none; }
 
-  .workspace {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-    min-width: 0;
-  }
-  .workspace > * { min-width: 0; overflow: hidden; }
-
-  .panel {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 20px;
-  }
-  .panel h2 {
-    font-size: 14px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: var(--text-dim);
-    margin-bottom: 16px;
+  .section-label {
+    font-size: 13px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.5px; color: var(--text-dim); margin-bottom: 12px;
   }
 
-  /* Upload area */
+  /* Top bar: image upload */
+  .top-bar {
+    display: flex; gap: 20px; align-items: stretch;
+    margin-bottom: 24px;
+  }
   .upload-zone {
-    border: 2px dashed var(--border);
-    border-radius: 8px;
-    padding: 40px 20px;
-    text-align: center;
-    cursor: pointer;
-    transition: border-color 0.2s;
-    margin-bottom: 16px;
+    border: 2px dashed var(--border); border-radius: 8px;
+    padding: 20px; text-align: center; cursor: pointer;
+    transition: border-color 0.2s; min-width: 200px; max-width: 300px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
   }
   .upload-zone:hover, .upload-zone.dragover { border-color: var(--accent); }
   .upload-zone.has-image { padding: 0; border-style: solid; }
   .upload-zone img {
-    max-width: 100%;
-    max-height: 350px;
-    border-radius: 6px;
-    display: block;
-    margin: 0 auto;
-    object-fit: contain;
+    max-width: 100%; max-height: 200px; border-radius: 6px;
+    display: block; object-fit: contain;
   }
-  .upload-zone .placeholder { color: var(--text-dim); font-size: 14px; }
+  .upload-zone .placeholder { color: var(--text-dim); font-size: 13px; }
 
-  /* Prompt area */
-  textarea {
-    width: 100%;
-    min-height: 120px;
-    padding: 12px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    background: var(--bg);
-    color: var(--text);
-    font-size: 14px;
-    line-height: 1.5;
-    resize: vertical;
-    font-family: inherit;
+  .top-bar .info {
+    flex: 1; display: flex; flex-direction: column; justify-content: center;
+    gap: 12px;
   }
-  textarea:focus { outline: none; border-color: var(--accent); }
+  .top-bar .info p { color: var(--text-dim); font-size: 13px; line-height: 1.5; }
 
-  .prompt-presets {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 12px;
-    flex-wrap: wrap;
+  /* Prompt cards */
+  .prompts-area {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px; margin-bottom: 24px;
+  }
+  .prompts-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .prompt-cards { display: flex; flex-direction: column; gap: 12px; }
+
+  .prompt-card {
+    border: 1px solid var(--border); border-radius: 8px; padding: 12px;
+    background: var(--bg); position: relative;
+  }
+  .prompt-card-header {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+  }
+  .prompt-card-header input {
+    padding: 4px 8px; border: 1px solid var(--border); border-radius: 4px;
+    background: transparent; color: var(--accent); font-size: 13px;
+    font-weight: 600; width: 120px;
+  }
+  .prompt-card-header input:focus { outline: none; border-color: var(--accent); }
+  .prompt-card .remove-btn {
+    position: absolute; top: 8px; right: 8px;
+    background: none; border: none; color: var(--text-dim);
+    cursor: pointer; font-size: 16px; padding: 4px 8px;
+    border-radius: 4px;
+  }
+  .prompt-card .remove-btn:hover { color: var(--danger); background: rgba(230,57,70,0.1); }
+
+  .prompt-card textarea {
+    width: 100%; min-height: 60px; padding: 8px; border: 1px solid var(--border);
+    border-radius: 6px; background: var(--surface); color: var(--text);
+    font-size: 13px; line-height: 1.4; resize: vertical; font-family: inherit;
+  }
+  .prompt-card textarea:focus { outline: none; border-color: var(--accent); }
+
+  .preset-row {
+    display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap;
   }
   .preset-btn {
-    padding: 4px 10px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    background: transparent;
-    color: var(--text-dim);
-    font-size: 12px;
-    cursor: pointer;
-    transition: all 0.2s;
+    padding: 3px 8px; border: 1px solid var(--border); border-radius: 4px;
+    background: transparent; color: var(--text-dim); font-size: 11px;
+    cursor: pointer; transition: all 0.2s;
   }
   .preset-btn:hover { border-color: var(--accent); color: var(--text); }
 
-  .actions {
-    display: flex;
-    gap: 12px;
-    margin-top: 16px;
-    align-items: center;
-  }
-  .btn-primary {
-    padding: 10px 24px;
-    border: none;
-    border-radius: 8px;
-    background: var(--accent);
-    color: #fff;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
+  .btn { padding: 8px 16px; border: none; border-radius: 6px; font-size: 13px; cursor: pointer; font-weight: 500; }
+  .btn-primary { background: var(--accent); color: #fff; font-weight: 600; font-size: 14px; padding: 10px 28px; }
   .btn-primary:hover { background: var(--accent-hover); }
   .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-secondary { background: transparent; border: 1px solid var(--border); color: var(--text-dim); }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--text); }
+
+  .actions-bar {
+    display: flex; gap: 12px; align-items: center; margin-top: 16px;
+  }
   .status { font-size: 13px; color: var(--text-dim); }
-
-  /* Result area */
-  .result-zone {
-    min-height: 200px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    overflow: hidden;
-    position: relative;
-    background: var(--bg);
+  .spinner {
+    display: inline-block; width: 16px; height: 16px;
+    border: 2px solid var(--border); border-top-color: var(--accent);
+    border-radius: 50%; animation: spin 0.8s linear infinite;
+    vertical-align: middle; margin-right: 6px;
   }
-  .result-zone img {
-    max-width: 100%;
-    max-height: 500px;
-    display: block;
-  }
-  .result-zone .empty { color: var(--text-dim); font-size: 14px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* Comparison slider */
+  /* Results */
+  .results-area {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px; display: none;
+  }
+  .results-area.active { display: block; }
+
+  .results-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px; margin-bottom: 20px;
+  }
+
+  .result-card {
+    border: 1px solid var(--border); border-radius: 8px; overflow: hidden;
+    background: var(--bg); position: relative; cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .result-card:hover { border-color: var(--accent); }
+  .result-card.rank-1 { border-color: var(--gold); }
+  .result-card.rank-2 { border-color: var(--silver); }
+  .result-card.rank-3 { border-color: var(--bronze); }
+
+  .result-card .rank-badge {
+    position: absolute; top: 8px; left: 8px; z-index: 2;
+    padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 700;
+  }
+  .rank-badge.rank-1 { background: var(--gold); color: #1a1a1a; }
+  .rank-badge.rank-2 { background: var(--silver); color: #1a1a1a; }
+  .rank-badge.rank-3 { background: var(--bronze); color: #fff; }
+
+  .result-card .time-badge {
+    position: absolute; top: 8px; right: 8px; z-index: 2;
+    padding: 2px 8px; border-radius: 4px; font-size: 11px;
+    background: rgba(0,0,0,0.6); color: var(--text-dim);
+  }
+
+  .result-card .card-image {
+    width: 100%; height: 220px; object-fit: cover;
+  }
+  .result-card .card-body { padding: 10px 12px; }
+  .result-card .card-name { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+  .result-card .card-score { font-size: 12px; color: var(--accent); margin-bottom: 4px; }
+  .result-card .card-reasoning { font-size: 12px; color: var(--text-dim); line-height: 1.4; }
+  .result-card .card-error { font-size: 12px; color: var(--danger); padding: 20px 12px; }
+
+  /* Suggestion box */
+  .suggestion-box {
+    border: 1px solid var(--accent); border-radius: 8px; padding: 16px;
+    background: rgba(0, 180, 216, 0.05);
+  }
+  .suggestion-box h3 {
+    font-size: 14px; font-weight: 600; color: var(--accent); margin-bottom: 8px;
+  }
+  .suggestion-box .reasoning { font-size: 13px; color: var(--text-dim); line-height: 1.5; margin-bottom: 12px; }
+  .suggestion-box .suggested-prompt {
+    font-size: 13px; padding: 10px; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 6px; line-height: 1.4; margin-bottom: 12px; white-space: pre-wrap;
+  }
+  .suggestion-box .btn { margin-right: 8px; }
+
+  /* Expanded comparison modal */
+  .modal-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.85); z-index: 100; display: none;
+    align-items: center; justify-content: center;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal-content {
+    max-width: 90vw; max-height: 90vh; position: relative;
+  }
+  .modal-close {
+    position: absolute; top: -30px; right: 0; background: none;
+    border: none; color: #fff; font-size: 24px; cursor: pointer;
+  }
+
   .comparison {
-    position: relative;
-    width: 100%;
-    overflow: hidden;
-    cursor: col-resize;
-    user-select: none;
+    position: relative; overflow: hidden; cursor: col-resize; user-select: none;
   }
-  .comparison img {
-    display: block;
-    width: 100%;
-    max-height: 500px;
-    object-fit: contain;
-  }
+  .comparison img { display: block; max-width: 80vw; max-height: 80vh; object-fit: contain; }
   .comparison .after-wrap {
-    position: absolute;
-    top: 0; left: 0; bottom: 0;
-    width: 50%;
-    overflow: hidden;
+    position: absolute; top: 0; left: 0; bottom: 0; width: 50%; overflow: hidden;
   }
   .comparison .after-wrap img {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain;
   }
   .comparison .slider-line {
-    position: absolute;
-    top: 0; bottom: 0;
-    width: 3px;
-    background: var(--accent);
-    left: 50%;
-    transform: translateX(-50%);
-    pointer-events: none;
-    z-index: 2;
+    position: absolute; top: 0; bottom: 0; width: 3px;
+    background: var(--accent); left: 50%; transform: translateX(-50%);
+    pointer-events: none; z-index: 2;
   }
   .comparison .slider-handle {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: var(--accent);
-    border: 3px solid #fff;
-    z-index: 3;
-    pointer-events: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    color: #fff;
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 32px; height: 32px; border-radius: 50%; background: var(--accent);
+    border: 3px solid #fff; z-index: 3; pointer-events: none;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; color: #fff;
   }
   .comparison .label {
-    position: absolute;
-    bottom: 8px;
-    padding: 2px 8px;
-    border-radius: 4px;
-    background: rgba(0,0,0,0.6);
-    color: #fff;
-    font-size: 11px;
-    z-index: 2;
+    position: absolute; bottom: 8px; padding: 2px 8px; border-radius: 4px;
+    background: rgba(0,0,0,0.6); color: #fff; font-size: 11px; z-index: 2;
   }
   .comparison .label.before { left: 8px; }
   .comparison .label.after { right: 8px; }
 
-  /* History */
-  .history-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    max-height: 300px;
-    overflow-y: auto;
-    margin-top: 12px;
-  }
-  .history-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    cursor: pointer;
-    transition: border-color 0.2s;
-    font-size: 13px;
-  }
-  .history-item:hover { border-color: var(--accent); }
-  .history-item img { width: 48px; height: 48px; object-fit: cover; border-radius: 4px; }
-  .history-item .meta { flex: 1; min-width: 0; }
-  .history-item .prompt-preview {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    color: var(--text-dim);
-    font-size: 12px;
-  }
-  .history-item .time { color: var(--text-dim); font-size: 11px; }
-
-  .spinner {
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    border: 2px solid var(--border);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  @media (max-width: 800px) {
-    .workspace { grid-template-columns: 1fr; }
+  @media (max-width: 700px) {
+    .top-bar { flex-direction: column; }
+    .upload-zone { max-width: 100%; }
+    .results-grid { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -310,66 +275,68 @@
 <div id="app">
   <header>
     <h1>AquaEdit <span>Lab</span></h1>
-    <div class="api-key-area"></div>
+    <div style="font-size:12px;color:var(--text-dim)">Up to 5 prompts, ranked by AI</div>
   </header>
 
-  <div class="workspace">
-    <!-- Left: Input -->
-    <div class="panel">
-      <h2>Input</h2>
-      <div class="upload-zone" id="uploadZone">
-        <div class="placeholder">Drop an image or click to upload</div>
-      </div>
-      <input type="file" id="fileInput" accept="image/*" style="display:none">
-
-      <h2 style="margin-top:16px">Prompt</h2>
-      <div class="prompt-presets">
-        <button class="preset-btn" data-preset="production">Production</button>
-        <button class="preset-btn" data-preset="natural">Natural Colors</button>
-        <button class="preset-btn" data-preset="vivid">Vivid</button>
-        <button class="preset-btn" data-preset="minimal">Minimal Touch</button>
-      </div>
-      <textarea id="promptInput"></textarea>
-
-      <div class="actions">
-        <button class="btn-primary" id="enhanceBtn" disabled>Enhance</button>
-        <span class="status" id="statusText"></span>
-      </div>
-
-      <h2 style="margin-top:24px">History</h2>
-      <div class="history-list" id="historyList">
-        <div style="color:var(--text-dim);font-size:13px;">No runs yet</div>
-      </div>
+  <!-- Image Upload -->
+  <div class="top-bar">
+    <div class="upload-zone" id="uploadZone">
+      <div class="placeholder">Drop image or click to upload</div>
     </div>
-
-    <!-- Right: Result -->
-    <div class="panel">
-      <h2>Result</h2>
-      <div class="result-zone" id="resultZone">
-        <div class="empty">Results will appear here</div>
-      </div>
+    <input type="file" id="fileInput" accept="image/*" style="display:none">
+    <div class="info">
+      <p>Upload an underwater photo, add multiple prompts below, and hit <strong>Run All</strong>.
+      All prompts run simultaneously against the same image. Results are ranked by AI with a suggestion for an even better prompt.</p>
     </div>
+  </div>
+
+  <!-- Prompts -->
+  <div class="prompts-area">
+    <div class="prompts-header">
+      <div class="section-label" style="margin:0">Prompts</div>
+      <button class="btn btn-secondary" id="addPromptBtn">+ Add Prompt</button>
+    </div>
+    <div class="prompt-cards" id="promptCards"></div>
+    <div class="actions-bar">
+      <button class="btn btn-primary" id="runAllBtn" disabled>Run All</button>
+      <span class="status" id="statusText"></span>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div class="results-area" id="resultsArea">
+    <div class="section-label">Results</div>
+    <div class="results-grid" id="resultsGrid"></div>
+    <div id="suggestionContainer"></div>
+  </div>
+</div>
+
+<!-- Comparison Modal -->
+<div class="modal-overlay" id="modal">
+  <div class="modal-content" id="modalContent">
+    <button class="modal-close" id="modalClose">&times;</button>
   </div>
 </div>
 
 <script>
-// --- Config ---
 const PASSWORD_HASH = 'a9c359e6be14d8a135a3f3260c8d4a250c3587aad617e28a0b222d894131880c';
-const LAB_ENHANCE_URL = 'https://edhivfbrplzbaydsqxog.supabase.co/functions/v1/lab-enhance';
-let labPassword = ''; // stored after gate auth
+const LAB_BATCH_URL = 'https://edhivfbrplzbaydsqxog.supabase.co/functions/v1/lab-batch';
+let labPassword = '';
 
 const PRESETS = {
   production: `Enhance this underwater photograph. Correct the blue/green color cast, restore natural colors, improve white balance, increase clarity and sharpness, reduce backscatter, and optimize exposure. DO NOT alter the composition, framing, subject position, or add/remove any objects. The enhanced image must be pixel-aligned with the original — same crop, same perspective, same scene. Only adjust color, lighting, contrast, and clarity.`,
   natural: `Enhance this underwater photograph with a focus on natural color restoration. Gently correct the blue/green color cast to reveal the scene's true colors as they would appear at the surface. Preserve the natural underwater atmosphere — don't over-saturate. Improve white balance and reduce backscatter. DO NOT alter composition, framing, or subject position.`,
   vivid: `Enhance this underwater photograph for maximum visual impact. Aggressively correct color cast, boost saturation and vibrancy, enhance contrast and clarity, sharpen details, and reduce all backscatter and haze. Make colors pop while keeping the image realistic. DO NOT alter composition, framing, or subject position.`,
-  minimal: `Lightly enhance this underwater photograph. Apply subtle white balance correction, mild backscatter reduction, and a small clarity boost. Keep the edit minimal and natural-looking. DO NOT alter composition, framing, or subject position.`
+  minimal: `Lightly enhance this underwater photograph. Apply subtle white balance correction, mild backscatter reduction, and a small clarity boost. Keep the edit minimal and natural-looking. DO NOT alter composition, framing, or subject position.`,
+  pro: `Update this photo as though it was taken by a professional photographer with an expensive underwater camera system with proper lighting.`
 };
 
 // --- State ---
 let originalBase64 = null;
 let originalMime = null;
 let originalDataUrl = null;
-let history = JSON.parse(localStorage.getItem('aqlab_history') || '[]');
+let promptCounter = 0;
+let lastResults = [];
 
 // --- Auth ---
 const gate = document.getElementById('gate');
@@ -403,7 +370,6 @@ passInput.addEventListener('keydown', (e) => {
   passError.style.display = 'none';
 });
 
-// Auto-login if already authed this session
 if (sessionStorage.getItem('aqlab_auth') && sessionStorage.getItem('aqlab_pw')) {
   labPassword = sessionStorage.getItem('aqlab_pw');
   gate.style.display = 'none';
@@ -413,43 +379,28 @@ if (sessionStorage.getItem('aqlab_auth') && sessionStorage.getItem('aqlab_pw')) 
 
 // --- App ---
 function loadApp() {
-  const apiKeyInput = document.getElementById('apiKeyInput');
-  const promptInput = document.getElementById('promptInput');
   const uploadZone = document.getElementById('uploadZone');
   const fileInput = document.getElementById('fileInput');
-  const enhanceBtn = document.getElementById('enhanceBtn');
+  const addPromptBtn = document.getElementById('addPromptBtn');
+  const promptCards = document.getElementById('promptCards');
+  const runAllBtn = document.getElementById('runAllBtn');
   const statusText = document.getElementById('statusText');
-  const resultZone = document.getElementById('resultZone');
-  const historyList = document.getElementById('historyList');
-
-  // Restore saved values
-  promptInput.value = localStorage.getItem('aqlab_prompt') || PRESETS.production;
-
-  promptInput.addEventListener('input', () => {
-    localStorage.setItem('aqlab_prompt', promptInput.value);
-  });
-
-  // Presets
-  document.querySelectorAll('.preset-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const key = btn.dataset.preset;
-      promptInput.value = PRESETS[key] || '';
-      localStorage.setItem('aqlab_prompt', promptInput.value);
-    });
-  });
+  const resultsArea = document.getElementById('resultsArea');
+  const resultsGrid = document.getElementById('resultsGrid');
+  const suggestionContainer = document.getElementById('suggestionContainer');
+  const modal = document.getElementById('modal');
+  const modalContent = document.getElementById('modalContent');
+  const modalClose = document.getElementById('modalClose');
 
   // Upload
   uploadZone.addEventListener('click', () => fileInput.click());
   uploadZone.addEventListener('dragover', (e) => { e.preventDefault(); uploadZone.classList.add('dragover'); });
   uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
   uploadZone.addEventListener('drop', (e) => {
-    e.preventDefault();
-    uploadZone.classList.remove('dragover');
+    e.preventDefault(); uploadZone.classList.remove('dragover');
     if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
   });
-  fileInput.addEventListener('change', () => {
-    if (fileInput.files.length) handleFile(fileInput.files[0]);
-  });
+  fileInput.addEventListener('change', () => { if (fileInput.files.length) handleFile(fileInput.files[0]); });
 
   function handleFile(file) {
     if (!file.type.startsWith('image/')) return;
@@ -460,34 +411,81 @@ function loadApp() {
       originalBase64 = originalDataUrl.split(',')[1];
       uploadZone.innerHTML = `<img src="${originalDataUrl}">`;
       uploadZone.classList.add('has-image');
-      enhanceBtn.disabled = false;
-      // Clear previous result
-      resultZone.innerHTML = '<div class="empty">Results will appear here</div>';
+      updateRunState();
     };
     reader.readAsDataURL(file);
   }
 
-  function updateEnhanceState() {
-    enhanceBtn.disabled = !originalBase64;
+  // Prompt management
+  function addPromptCard(name, text) {
+    if (promptCards.children.length >= 5) return;
+    promptCounter++;
+    const id = 'p' + promptCounter;
+    const card = document.createElement('div');
+    card.className = 'prompt-card';
+    card.dataset.id = id;
+    card.innerHTML = `
+      <div class="prompt-card-header">
+        <input type="text" class="name-input" value="${esc(name || 'Prompt ' + promptCounter)}" maxlength="20">
+      </div>
+      <button class="remove-btn" title="Remove">&times;</button>
+      <div class="preset-row">
+        ${Object.keys(PRESETS).map(k => `<button class="preset-btn" data-preset="${k}">${k}</button>`).join('')}
+      </div>
+      <textarea>${esc(text || '')}</textarea>
+    `;
+    card.querySelector('.remove-btn').addEventListener('click', () => {
+      card.remove(); updateRunState();
+    });
+    card.querySelectorAll('.preset-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        card.querySelector('textarea').value = PRESETS[btn.dataset.preset] || '';
+      });
+    });
+    promptCards.appendChild(card);
+    updateRunState();
+    if (promptCards.children.length >= 5) addPromptBtn.disabled = true;
   }
 
-  // Enhance
-  enhanceBtn.addEventListener('click', async () => {
-    const prompt = promptInput.value.trim();
-    if (!originalBase64 || !prompt) return;
+  addPromptBtn.addEventListener('click', () => addPromptCard('', ''));
 
-    enhanceBtn.disabled = true;
-    statusText.innerHTML = '<span class="spinner"></span> Enhancing...';
+  // Seed with 2 default prompts
+  addPromptCard('Production', PRESETS.production);
+  addPromptCard('Vivid', PRESETS.vivid);
+
+  function updateRunState() {
+    const hasImage = !!originalBase64;
+    const hasPrompts = promptCards.children.length > 0;
+    runAllBtn.disabled = !hasImage || !hasPrompts;
+    if (promptCards.children.length < 5) addPromptBtn.disabled = false;
+  }
+
+  function getPrompts() {
+    return Array.from(promptCards.children).map(card => ({
+      id: card.dataset.id,
+      name: card.querySelector('.name-input').value.trim() || 'Unnamed',
+      prompt: card.querySelector('textarea').value.trim()
+    })).filter(p => p.prompt);
+  }
+
+  // Run all
+  runAllBtn.addEventListener('click', async () => {
+    const prompts = getPrompts();
+    if (!originalBase64 || prompts.length === 0) return;
+
+    runAllBtn.disabled = true;
+    statusText.innerHTML = `<span class="spinner"></span> Running ${prompts.length} prompt${prompts.length > 1 ? 's' : ''} in parallel...`;
+    resultsArea.classList.remove('active');
 
     const startTime = Date.now();
 
     try {
-      const res = await fetch(LAB_ENHANCE_URL, {
+      const res = await fetch(LAB_BATCH_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           password: labPassword,
-          prompt,
+          prompts,
           imageBase64: originalBase64,
           mimeType: originalMime || 'image/jpeg'
         })
@@ -495,43 +493,97 @@ function loadApp() {
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || `Error ${res.status}`);
-      if (!data.enhancedImageBase64) throw new Error('No image returned.');
 
       const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
-      const enhancedDataUrl = `data:${data.enhancedMimeType || 'image/png'};base64,${data.enhancedImageBase64}`;
+      statusText.textContent = `Completed in ${elapsed}s`;
 
-      statusText.textContent = `Done in ${elapsed}s`;
-
-      // Show comparison slider
-      showComparison(originalDataUrl, enhancedDataUrl);
-
-      // Save to history
-      const entry = {
-        id: Date.now(),
-        prompt: prompt.substring(0, 200),
-        time: new Date().toLocaleTimeString(),
-        elapsed,
-        thumbBefore: originalDataUrl,
-        thumbAfter: enhancedDataUrl
-      };
-      history.unshift(entry);
-      if (history.length > 20) history.pop();
-      // Don't store full images in localStorage (too big), just metadata
-      const histMeta = history.map(h => ({ id: h.id, prompt: h.prompt, time: h.time, elapsed: h.elapsed }));
-      localStorage.setItem('aqlab_history', JSON.stringify(histMeta));
-      renderHistory();
+      lastResults = data.results || [];
+      renderResults(data.results, data.rankings, data.suggestedPrompt, data.suggestedReasoning);
 
     } catch (err) {
       statusText.textContent = `Error: ${err.message}`;
     } finally {
-      enhanceBtn.disabled = false;
+      runAllBtn.disabled = false;
     }
   });
 
-  function showComparison(beforeUrl, afterUrl) {
-    resultZone.innerHTML = `
+  // Render results
+  function renderResults(results, rankings, suggestedPrompt, suggestedReasoning) {
+    resultsArea.classList.add('active');
+    resultsGrid.innerHTML = '';
+    suggestionContainer.innerHTML = '';
+
+    // Build ranking lookup
+    const rankMap = {};
+    (rankings || []).forEach(r => { rankMap[r.id] = r; });
+
+    // Sort results by rank
+    const sorted = [...results].sort((a, b) => {
+      const ra = rankMap[a.id]?.rank ?? 99;
+      const rb = rankMap[b.id]?.rank ?? 99;
+      return ra - rb;
+    });
+
+    sorted.forEach(r => {
+      const ranking = rankMap[r.id];
+      const card = document.createElement('div');
+      card.className = 'result-card' + (ranking ? ` rank-${ranking.rank}` : '');
+
+      if (r.success && r.imageBase64) {
+        const dataUrl = `data:${r.mimeType || 'image/png'};base64,${r.imageBase64}`;
+        card.innerHTML = `
+          ${ranking ? `<div class="rank-badge rank-${ranking.rank}">#${ranking.rank}</div>` : ''}
+          <div class="time-badge">${(r.timeMs / 1000).toFixed(1)}s</div>
+          <img class="card-image" src="${dataUrl}">
+          <div class="card-body">
+            <div class="card-name">${esc(r.name)}</div>
+            ${ranking ? `<div class="card-score">Score: ${ranking.score}/10</div>` : ''}
+            ${ranking ? `<div class="card-reasoning">${esc(ranking.reasoning)}</div>` : ''}
+          </div>
+        `;
+        card.addEventListener('click', () => showComparison(originalDataUrl, dataUrl, r.name));
+      } else {
+        card.innerHTML = `
+          <div class="card-body">
+            <div class="card-name">${esc(r.name)}</div>
+            <div class="card-error">${esc(r.error || 'Failed')}</div>
+          </div>
+        `;
+      }
+
+      resultsGrid.appendChild(card);
+    });
+
+    // Suggestion box
+    if (suggestedPrompt) {
+      suggestionContainer.innerHTML = `
+        <div class="suggestion-box">
+          <h3>AI Suggestion: Try This Next</h3>
+          <div class="reasoning">${esc(suggestedReasoning)}</div>
+          <div class="suggested-prompt">${esc(suggestedPrompt)}</div>
+          <button class="btn btn-secondary" id="addSuggestionBtn">Add as New Prompt</button>
+          <button class="btn btn-secondary" id="runSuggestionBtn">Add &amp; Run All</button>
+        </div>
+      `;
+      document.getElementById('addSuggestionBtn').addEventListener('click', () => {
+        addPromptCard('AI Suggested', suggestedPrompt);
+      });
+      document.getElementById('runSuggestionBtn').addEventListener('click', () => {
+        addPromptCard('AI Suggested', suggestedPrompt);
+        setTimeout(() => runAllBtn.click(), 100);
+      });
+    }
+
+    resultsArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // Comparison modal
+  function showComparison(beforeUrl, afterUrl, name) {
+    modalContent.innerHTML = `
+      <button class="modal-close">&times;</button>
+      <div style="color:var(--text-dim);font-size:13px;margin-bottom:8px;text-align:center">${esc(name)} — drag to compare</div>
       <div class="comparison" id="compSlider">
-        <img src="${beforeUrl}" class="before-img">
+        <img src="${beforeUrl}">
         <div class="after-wrap"><img src="${afterUrl}"></div>
         <div class="slider-line"></div>
         <div class="slider-handle">&#x2194;</div>
@@ -539,6 +591,10 @@ function loadApp() {
         <span class="label after">After</span>
       </div>
     `;
+    modal.classList.add('active');
+
+    modalContent.querySelector('.modal-close').addEventListener('click', () => modal.classList.remove('active'));
+    modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); });
 
     const comp = document.getElementById('compSlider');
     const afterWrap = comp.querySelector('.after-wrap');
@@ -546,44 +602,28 @@ function loadApp() {
     const handle = comp.querySelector('.slider-handle');
     let dragging = false;
 
-    function setPosition(x) {
+    function setPos(x) {
       const rect = comp.getBoundingClientRect();
-      let pct = ((x - rect.left) / rect.width) * 100;
-      pct = Math.max(0, Math.min(100, pct));
+      let pct = Math.max(0, Math.min(100, ((x - rect.left) / rect.width) * 100));
       afterWrap.style.width = pct + '%';
       line.style.left = pct + '%';
       handle.style.left = pct + '%';
     }
 
-    comp.addEventListener('mousedown', (e) => { dragging = true; setPosition(e.clientX); });
-    window.addEventListener('mousemove', (e) => { if (dragging) setPosition(e.clientX); });
+    comp.addEventListener('mousedown', (e) => { dragging = true; setPos(e.clientX); });
+    window.addEventListener('mousemove', (e) => { if (dragging) setPos(e.clientX); });
     window.addEventListener('mouseup', () => { dragging = false; });
-    comp.addEventListener('touchstart', (e) => { dragging = true; setPosition(e.touches[0].clientX); });
-    window.addEventListener('touchmove', (e) => { if (dragging) setPosition(e.touches[0].clientX); });
+    comp.addEventListener('touchstart', (e) => { dragging = true; setPos(e.touches[0].clientX); });
+    window.addEventListener('touchmove', (e) => { if (dragging) setPos(e.touches[0].clientX); });
     window.addEventListener('touchend', () => { dragging = false; });
   }
 
-  function renderHistory() {
-    if (!history.length) {
-      historyList.innerHTML = '<div style="color:var(--text-dim);font-size:13px;">No runs yet</div>';
-      return;
-    }
-    historyList.innerHTML = history.map(h => `
-      <div class="history-item">
-        <div class="meta">
-          <div class="prompt-preview">${escHtml(h.prompt)}</div>
-          <div class="time">${h.time} &middot; ${h.elapsed}s</div>
-        </div>
-      </div>
-    `).join('');
-  }
+  // ESC to close modal
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') modal.classList.remove('active');
+  });
 
-  function escHtml(s) {
-    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  }
-
-  renderHistory();
-  updateEnhanceState();
+  function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 }
 </script>
 </body>
