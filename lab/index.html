@@ -60,20 +60,7 @@
   }
   header h1 { font-size: 20px; font-weight: 600; }
   header h1 span { color: var(--accent); }
-  .api-key-area {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .api-key-area input {
-    padding: 6px 10px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    background: var(--surface);
-    color: var(--text);
-    font-size: 13px;
-    width: 260px;
-  }
+  .api-key-area { display: none; }
 
   .workspace {
     display: grid;
@@ -320,9 +307,7 @@
 <div id="app">
   <header>
     <h1>AquaEdit <span>Lab</span></h1>
-    <div class="api-key-area">
-      <input type="password" id="apiKeyInput" placeholder="Gemini API key">
-    </div>
+    <div class="api-key-area"></div>
   </header>
 
   <div class="workspace">
@@ -367,7 +352,8 @@
 <script>
 // --- Config ---
 const PASSWORD_HASH = 'a9c359e6be14d8a135a3f3260c8d4a250c3587aad617e28a0b222d894131880c';
-const GEMINI_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image-preview:generateContent';
+const LAB_ENHANCE_URL = 'https://edhivfbrplzbaydsqxog.supabase.co/functions/v1/lab-enhance';
+let labPassword = ''; // stored after gate auth
 
 const PRESETS = {
   production: `Enhance this underwater photograph. Correct the blue/green color cast, restore natural colors, improve white balance, increase clarity and sharpness, reduce backscatter, and optimize exposure. DO NOT alter the composition, framing, subject position, or add/remove any objects. The enhanced image must be pixel-aligned with the original — same crop, same perspective, same scene. Only adjust color, lighting, contrast, and clarity.`,
@@ -396,7 +382,9 @@ async function sha256(str) {
 async function checkPassword(pw) {
   const hash = await sha256(pw);
   if (hash === PASSWORD_HASH) {
+    labPassword = pw;
     sessionStorage.setItem('aqlab_auth', '1');
+    sessionStorage.setItem('aqlab_pw', pw);
     gate.style.display = 'none';
     app.classList.add('active');
     loadApp();
@@ -413,7 +401,8 @@ passInput.addEventListener('keydown', (e) => {
 });
 
 // Auto-login if already authed this session
-if (sessionStorage.getItem('aqlab_auth')) {
+if (sessionStorage.getItem('aqlab_auth') && sessionStorage.getItem('aqlab_pw')) {
+  labPassword = sessionStorage.getItem('aqlab_pw');
   gate.style.display = 'none';
   app.classList.add('active');
   setTimeout(loadApp, 0);
@@ -431,12 +420,8 @@ function loadApp() {
   const historyList = document.getElementById('historyList');
 
   // Restore saved values
-  apiKeyInput.value = localStorage.getItem('aqlab_apikey') || '';
   promptInput.value = localStorage.getItem('aqlab_prompt') || PRESETS.production;
 
-  apiKeyInput.addEventListener('input', () => {
-    localStorage.setItem('aqlab_apikey', apiKeyInput.value);
-  });
   promptInput.addEventListener('input', () => {
     localStorage.setItem('aqlab_prompt', promptInput.value);
   });
@@ -480,15 +465,13 @@ function loadApp() {
   }
 
   function updateEnhanceState() {
-    enhanceBtn.disabled = !originalBase64 || !apiKeyInput.value.trim();
+    enhanceBtn.disabled = !originalBase64;
   }
-  apiKeyInput.addEventListener('input', updateEnhanceState);
 
   // Enhance
   enhanceBtn.addEventListener('click', async () => {
-    const apiKey = apiKeyInput.value.trim();
     const prompt = promptInput.value.trim();
-    if (!originalBase64 || !apiKey || !prompt) return;
+    if (!originalBase64 || !prompt) return;
 
     enhanceBtn.disabled = true;
     statusText.innerHTML = '<span class="spinner"></span> Enhancing...';
@@ -496,33 +479,23 @@ function loadApp() {
     const startTime = Date.now();
 
     try {
-      const res = await fetch(`${GEMINI_ENDPOINT}?key=${apiKey}`, {
+      const res = await fetch(LAB_ENHANCE_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          contents: [{
-            parts: [
-              { text: prompt },
-              { inlineData: { mimeType: originalMime || 'image/jpeg', data: originalBase64 } }
-            ]
-          }],
-          generationConfig: { responseModalities: ['TEXT', 'IMAGE'] }
+          password: labPassword,
+          prompt,
+          imageBase64: originalBase64,
+          mimeType: originalMime || 'image/jpeg'
         })
       });
 
-      if (!res.ok) {
-        const err = await res.text();
-        throw new Error(`API ${res.status}: ${err.substring(0, 200)}`);
-      }
-
       const data = await res.json();
-      const parts = data.candidates?.[0]?.content?.parts;
-      const imgPart = parts?.find(p => p.inlineData?.mimeType?.startsWith('image/'));
-
-      if (!imgPart) throw new Error('No image returned. May have been filtered by safety.');
+      if (!res.ok) throw new Error(data.error || `Error ${res.status}`);
+      if (!data.enhancedImageBase64) throw new Error('No image returned.');
 
       const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
-      const enhancedDataUrl = `data:${imgPart.inlineData.mimeType};base64,${imgPart.inlineData.data}`;
+      const enhancedDataUrl = `data:${data.enhancedMimeType || 'image/png'};base64,${data.enhancedImageBase64}`;
 
       statusText.textContent = `Done in ${elapsed}s`;
 
